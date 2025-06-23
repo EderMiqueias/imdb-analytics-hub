@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  mysql_db:
+    image: mysql:8.0
+    container_name: mysql_container
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: imdb-analytics-hub
+      MYSQL_USER: user
+      MYSQL_PASSWORD: mysecretpassword
+    ports:
+      - "3306:3306"
+    restart: unless-stopped
