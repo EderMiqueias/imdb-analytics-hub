@@ -5,7 +5,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class MySQLConfig:
-    HOST = environ.get('mysql_host')
-    DATABASE = environ.get('mysql_database')
-    USER = environ.get('mysql_user')
-    PASSWORD = environ.get('mysql_password')
+    HOST = environ.get('MYSQL_HOST')
+    PORT = environ.get('MYSQL_PORT')
+    DATABASE = environ.get('MYSQL_DATABASE')
+    USER = environ.get('MYSQL_USER')
+    PASSWORD = environ.get('MYSQL_PASSWORD')
+
