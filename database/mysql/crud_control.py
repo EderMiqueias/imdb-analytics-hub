@@ -43,18 +43,16 @@ class MySQLCRUD:
 
             if fetch:
                 result = cursor.fetchall()
-                return result
             else:
                 self.connection.commit()
-                return cursor.rowcount
+                result = cursor.rowcount
+            cursor.close()
+            return result
 
         except Error as e:
             print(f"Erro ao executar query: {e}")
             self.connection.rollback()
             return None
-        finally:
-            if cursor:
-                cursor.close()
 
     def insert(self, table: str, data: dict):
         """Insere um novo registro na tabela especificada"""
