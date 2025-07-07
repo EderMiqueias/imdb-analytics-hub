@@ -3,12 +3,13 @@ from mysql.connector import Error
 
 
 class MySQLCRUD:
-    def __init__(self, host, database, user, password):
+    def __init__(self, host, database, user, password, port):
         """Inicializa a conexão com o banco de dados MySQL"""
         self.host = host
         self.database = database
         self.user = user
         self.password = password
+        self.port = port
         self.connection = None
         self.connect()
 
@@ -19,7 +20,8 @@ class MySQLCRUD:
                 host=self.host,
                 database=self.database,
                 user=self.user,
-                password=self.password
+                password=self.password,
+                port=self.port
             )
             if self.connection.is_connected():
                 print("Conexão ao MySQL estabelecida com sucesso")
@@ -93,3 +95,15 @@ class MySQLCRUD:
     def __del__(self):
         """Destrutor que fecha a conexão quando o objeto é destruído"""
         self.disconnect()
+
+
+def create_mysql_crud_service() -> MySQLCRUD:
+    from config import MySQLConfig as c
+
+    return MySQLCRUD(
+        host=c.HOST,
+        database=c.DATABASE,
+        password=c.PASSWORD,
+        user=c.USER,
+        port=c.PORT
+    )
