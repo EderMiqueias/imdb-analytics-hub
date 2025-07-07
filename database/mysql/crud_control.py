@@ -1,17 +1,13 @@
 import mysql.connector
 from mysql.connector import Error
 
+from database.migrations.db_base import BaseCRUD
 
-class MySQLCRUD:
+
+class MySQLCRUD(BaseCRUD):
     def __init__(self, host, database, user, password, port):
         """Inicializa a conexão com o banco de dados MySQL"""
-        self.host = host
-        self.database = database
-        self.user = user
-        self.password = password
-        self.port = port
-        self.connection = None
-        self.connect()
+        super().__init__(host, database, user, password, port)
 
     def connect(self):
         """Estabelece a conexão com o banco de dados"""
