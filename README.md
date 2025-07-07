@@ -7,6 +7,7 @@ O IMDb Analytics Hub é um Sistema de Apoio à Decisão (SAD) desenvolvido com b
 
 ## 📦 Estrutura do Projeto
 
+```bash
 imdb-analytics-hub/
 │
 ├── database/
@@ -21,6 +22,7 @@ imdb-analytics-hub/
 │
 ├── .env ← Configurações de ambiente (banco de dados)
 └── README.md
+```
 
 
 ---
@@ -61,11 +63,13 @@ title.ratings.tsv.gz
 3. Extraia os arquivos .tsv
 Extraia os arquivos .tsv e coloque-os dentro da pasta:
 
+```bash
 tsv_input_files/
 ├── name.basics.tsv
 ├── title.basics.tsv
 ├── title.principals.tsv
 ├── title.ratings.tsv
+```
 Importante: Certifique-se de que os arquivos estejam descompactados e com os nomes exatamente iguais aos acima.
 
 4. Execute o ETL
