@@ -59,6 +59,16 @@ class MySQLCRUD(BaseCRUD):
         rows_affected = self.execute_query(query, tuple(data.values()))
         return rows_affected
 
+    def executemany(self, query, values):
+        try:
+            cursor = self.connection.cursor(dictionary=True)
+            cursor.executemany(query, values)
+            cursor.close()
+            self.connection.commit()
+        except Error as e:
+            self.connection.rollback()
+            print(f"Erro ao executar query: {e}")
+
     def select(self, table: str, columns: str='*', where: str=None, params=None):
         """Realiza uma consulta na tabela especificada"""
         query = f"SELECT {columns} FROM {table}"

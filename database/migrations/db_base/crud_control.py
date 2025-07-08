@@ -21,6 +21,10 @@ class BaseCRUD:
         """Executa uma query genérica no banco de dados"""
         raise NotImplementedError('delete')
 
+    def executemany(self, query: str, values: list):
+        """Executa varias queries simultaneamente"""
+        raise NotImplementedError
+
     def insert(self, table: str, data: dict):
         """Insere um novo registro na tabela especificada"""
         raise NotImplementedError('delete')
