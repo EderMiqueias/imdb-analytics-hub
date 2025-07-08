@@ -9,11 +9,21 @@ from utils.dates import diferenca_entre_datetimes
 
 # Caminho base para os arquivos .tsv
 BASE_PATH = Path("tsv_input_files")
+ANO_MINIMO = datetime.now().year - 3  # Últimos 3 anos
 
 
-def carregar_dim_titulo(service: BaseCRUD):
+def carregar_dfs_from_tsvs() -> DFs:
+    basics_df = pd.read_csv(BASE_PATH / "title.basics.tsv", sep='\t', na_values='\\N', low_memory=False)
+    principals_df = pd.read_csv(BASE_PATH / "title.principals.tsv", sep='\t', na_values='\\N', low_memory=False)
+    names_df = pd.read_csv(BASE_PATH / "name.basics.tsv", sep='\t', na_values='\\N', low_memory=False)
+    ratings_df = pd.read_csv(BASE_PATH / "title.ratings.tsv", sep='\t', na_values='\\N', low_memory=False)
+
+    return DFs(basics_df, principals_df, names_df, ratings_df)
+
+
+def carregar_dim_titulo(service: BaseCRUD, dfs: DFs):
     start_time = datetime.now()
-    df = pd.read_csv(BASE_PATH / "title.basics.tsv", sep='\t', na_values='\\N', low_memory=False)
+    df = dfs.basics_df
     df = df[pd.to_numeric(df['startYear'], errors='coerce') >= ANO_MINIMO]
     df = df[['tconst', 'titleType', 'primaryTitle', 'genres', 'runtimeMinutes']]
     print('Leitura de TSVs concluida.')
@@ -37,11 +47,11 @@ def carregar_dim_titulo(service: BaseCRUD):
     print(f"{len(dados)} registros inseridos em DIM_Titulo.")
 
 
-def carregar_dim_pessoa(service: BaseCRUD):
+def carregar_dim_pessoa(service: BaseCRUD, dfs: DFs):
     start_time = datetime.now()
-    basics_df = pd.read_csv(BASE_PATH / "title.basics.tsv", sep='\t', na_values='\\N', low_memory=False)
-    principals_df = pd.read_csv(BASE_PATH / "title.principals.tsv", sep='\t', na_values='\\N', low_memory=False)
-    names_df = pd.read_csv(BASE_PATH / "name.basics.tsv", sep='\t', na_values='\\N', low_memory=False)
+    basics_df = dfs.basics_df
+    principals_df = dfs.principals_df
+    names_df = dfs.names_df
 
     print('Leitura de TSVs concluida.')
     diferenca_entre_datetimes(start_time, datetime.now())
@@ -84,8 +94,8 @@ def carregar_dim_pessoa(service: BaseCRUD):
     diferenca_entre_datetimes(start_time, datetime.now())
 
 
-def carregar_dim_tempo(service: BaseCRUD):
-    df = pd.read_csv(BASE_PATH / "title.basics.tsv", sep='\t', na_values='\\N')
+def carregar_dim_tempo(service: BaseCRUD, dfs: DFs):
+    df = dfs.basics_df
     df = df[pd.to_numeric(df['startYear'], errors='coerce') >= ANO_MINIMO]
     anos = df['startYear'].dropna().unique()
     for ano in anos:
@@ -97,10 +107,10 @@ def carregar_dim_tempo(service: BaseCRUD):
             (int(ano), int(ano)))
 
 
-def carregar_dim_papel(service: BaseCRUD):
+def carregar_dim_papel(service: BaseCRUD, dfs: DFs):
     # Lê arquivos
-    basics_df = pd.read_csv(BASE_PATH / "title.basics.tsv", sep='\t', na_values='\\N', low_memory=False)
-    principals_df = pd.read_csv(BASE_PATH / "title.principals.tsv", sep='\t', na_values='\\N', low_memory=False)
+    basics_df = dfs.basics_df
+    principals_df = dfs.principals_df
 
     # Filtra títulos dos últimos 3 anos
     basics_df = basics_df[pd.to_numeric(basics_df['startYear'], errors='coerce') >= ANO_MINIMO]
