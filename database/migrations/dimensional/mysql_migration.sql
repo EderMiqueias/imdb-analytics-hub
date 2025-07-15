@@ -33,9 +33,9 @@ CREATE TABLE IF NOT EXISTS Fato_Avaliacao_Titulo (
 );
 
 CREATE TABLE IF NOT EXISTS Fato_Pessoa (
-    pk_fato_pessoa INT PRIMARY KEY AUTO_INCREMENT,
+    DIM_Pessoa_pk_pessoa INT PRIMARY KEY,
+    numTitulos BIGINT(23),
     numVotes BIGINT(23),
     averageRating DECIMAL(4,2),
-    DIM_Pessoa_pk_pessoa INT NOT NULL,
     FOREIGN KEY (DIM_Pessoa_pk_pessoa) REFERENCES DIM_Pessoa(pk_pessoa)
 );

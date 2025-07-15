@@ -144,3 +144,49 @@ def carregar_fato_avaliacao_titulo(service: BaseCRUD, dfs: DFs):
         ) VALUES (%s, %s, %s, %s)
     """, dados)
     print(f"✅ {len(dados)} registros inseridos em Fato_Avaliacao_Titulo.\n")
+
+
+def carregar_fato_pessoa(service: BaseCRUD, dfs: DFs):
+    print("📥 Carregando Fato_Pessoa...")
+
+    basics_df = dfs.basics_df
+    ratings_df = dfs.ratings_df
+    principals_df = dfs.ratings_df
+
+    basics_df = basics_df[pd.to_numeric(basics_df['startYear'], errors='coerce') >= ANO_MINIMO]
+    basics_df = basics_df[basics_df['tconst'].str.match(r'tt\d+')]
+    valid_titles = set(basics_df['tconst'])
+
+    merged = pd.merge(principals_df, ratings_df, on='tconst')
+    merged = merged[merged['tconst'].isin(valid_titles)]
+    merged = merged[merged['nconst'].str.match(r'nm\d+')]
+
+    merged['pk_pessoa'] = merged['nconst'].apply(lambda x: int(x[2:]))
+    merged['numVotes'] = pd.to_numeric(merged['numVotes'], errors='coerce')
+    merged['averageRating'] = pd.to_numeric(merged['averageRating'], errors='coerce')
+
+    merged = merged.dropna(subset=['pk_pessoa', 'numVotes', 'averageRating'])
+
+    # Agrupamento por pessoa
+    grupo = merged.groupby('pk_pessoa').apply(lambda g: pd.Series({
+        'numTitulos': g['tconst'].nunique(),
+        'totalVotes': g['numVotes'].sum(),
+        'mediaPonderada': (g['averageRating'] * g['numVotes']).sum() / g['numVotes'].sum()
+    })).reset_index()
+
+    dados = [(
+        int(row['pk_pessoa']),
+        int(row['numTitulos']),
+        int(row['totalVotes']),
+        round(row['mediaPonderada'], 2)
+    ) for _, row in grupo.iterrows()]
+
+    service.executemany("""
+        INSERT INTO Fato_Pessoa (
+            pk_pessoa,
+            numTitulos,
+            numVotes,
+            averageRating
+        ) VALUES (%s, %s, %s, %s)
+    """, dados)
+    print(f"✅ {len(dados)} registros inseridos em Fato_Pessoa.\n")
