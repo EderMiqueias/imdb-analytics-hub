@@ -52,22 +52,11 @@ def carregar_dim_titulo(service: BaseCRUD, dfs: DFs):
         INSERT INTO DIM_Titulo (pk_titulo, titleType, primaryTitle, genres, runtimeMinutes)
         VALUES (%s, %s, %s, %s, %s)
     """, dados)
-    print(f"\n{len(dados)} registros inseridos em DIM_Titulo.\n")
+    print(f"\n✅ {len(dados)} registros inseridos em DIM_Titulo.\n")
 
 
 def carregar_dim_pessoa(service: BaseCRUD, dfs: DFs):
-    start_time = datetime.now()
-    basics_df = dfs.basics_df
-    principals_df = dfs.principals_df
     names_df = dfs.names_df
-
-    basics_df = basics_df[pd.to_numeric(basics_df['startYear'], errors='coerce') >= ANO_MINIMO]
-    valid_tconsts = set(basics_df['tconst'])
-
-    # filtered_principals = principals_df[principals_df['tconst'].isin(valid_tconsts)]
-    # valid_nconsts = set(filtered_principals['nconst'])
-
-    # filtered_names = names_df[names_df['nconst'].isin(valid_nconsts)][['nconst', 'primaryName']].dropna()
     filtered_names = names_df[['nconst', 'primaryName']].dropna()
 
     # Remove nconsts malformados e nomes vazios
@@ -109,13 +98,7 @@ def carregar_dim_tempo(service: BaseCRUD, dfs: DFs):
 def carregar_dim_papel(service: BaseCRUD, dfs: DFs):
     print("Carregando DIM_Papel...")
 
-    # basics_df = dfs.basics_df
     principals_df = dfs.principals_df
-
-    # basics_df = basics_df[pd.to_numeric(basics_df['startYear'], errors='coerce') >= ANO_MINIMO]
-    # valid_tconsts = set(basics_df['tconst'])
-
-    # principals_df = principals_df[principals_df['tconst'].isin(valid_tconsts)]
     principals_df = principals_df[['category', 'characters']].dropna().drop_duplicates()
 
     dados = []
@@ -129,3 +112,35 @@ def carregar_dim_papel(service: BaseCRUD, dfs: DFs):
         """, dados)
     print(f"\n✅ {len(dados)} registros inseridos em DIM_Papel.\n")
 
+def carregar_fato_avaliacao_titulo(service: BaseCRUD, dfs: DFs):
+    print("Carregando Fato_Avaliacao_Titulo...")
+
+    basics_df = dfs.basics_df
+    ratings_df = dfs.ratings_df
+
+    basics_df = basics_df[pd.to_numeric(basics_df['startYear'], errors='coerce') >= ANO_MINIMO]
+    basics_df = basics_df[basics_df['tconst'].str.match(r'tt\d+')]
+
+    merged_df = pd.merge(basics_df[['tconst', 'startYear']], ratings_df, on='tconst')
+    merged_df = merged_df.dropna(subset=['tconst', 'startYear', 'numVotes', 'averageRating'])
+
+    dados = []
+    for _, row in merged_df.iterrows():
+        try:
+            pk_titulo = int(row['tconst'][2:])
+            pk_tempo = int(row['startYear'])
+            votos = int(row['numVotes'])
+            nota = float(row['averageRating'])
+            dados.append((pk_titulo, pk_tempo, votos, nota))
+        except:
+            continue
+
+    service.executemany("""
+        INSERT INTO Fato_Avaliacao_Titulo (
+            DIM_Titulo_pk_titulo,
+            DIM_Tempo_pk_tempo,
+            numVotes,
+            averageRating
+        ) VALUES (%s, %s, %s, %s)
+    """, dados)
+    print(f"✅ {len(dados)} registros inseridos em Fato_Avaliacao_Titulo.\n")
