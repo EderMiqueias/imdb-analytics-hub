@@ -181,7 +181,7 @@ def carregar_fato_pessoa(service: BaseCRUD, dfs: DFs):
     ) for _, row in grupo.iterrows()]
 
     service.executemany("""
-        INSERT INTO Fato_Pessoa (
+        INSERT IGNORE INTO Fato_Pessoa (
             DIM_Pessoa_pk_pessoa,
             numTitulos,
             numVotes,
