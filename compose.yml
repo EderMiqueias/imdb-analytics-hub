@@ -9,6 +9,7 @@ services:
       MYSQL_DATABASE: imdb-analytics-hub
       MYSQL_USER: user
       MYSQL_PASSWORD: mysecretpassword
+      MYSQL_MAX_ALLOWED_PACKET: 1000000000000000
     ports:
       - "3306:3306"
     restart: unless-stopped
