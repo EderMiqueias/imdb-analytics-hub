@@ -31,3 +31,11 @@ CREATE TABLE IF NOT EXISTS Fato_Avaliacao_Titulo (
     FOREIGN KEY (DIM_Titulo_pk_titulo) REFERENCES DIM_Titulo(pk_titulo),
     FOREIGN KEY (DIM_Tempo_pk_tempo) REFERENCES DIM_Tempo(pk_tempo)
 );
+
+CREATE TABLE IF NOT EXISTS Fato_Pessoa (
+    pk_fato_pessoa INT PRIMARY KEY AUTO_INCREMENT,
+    numVotes BIGINT(23),
+    averageRating DECIMAL(4,2),
+    DIM_Pessoa_pk_pessoa INT NOT NULL,
+    FOREIGN KEY (DIM_Pessoa_pk_pessoa) REFERENCES DIM_Pessoa(pk_pessoa)
+);
