@@ -5,6 +5,7 @@ from datetime import datetime
 
 from DTO import DFs
 from database.migrations.db_base import BaseCRUD
+from utils.data import string_para_lista
 from utils.dates import diferenca_entre_datetimes
 
 # Caminho base para os arquivos .tsv
@@ -53,9 +54,6 @@ def carregar_dim_pessoa(service: BaseCRUD, dfs: DFs):
     principals_df = dfs.principals_df
     names_df = dfs.names_df
 
-    print('Leitura de TSVs concluida.')
-    diferenca_entre_datetimes(start_time, datetime.now())
-
     basics_df = basics_df[pd.to_numeric(basics_df['startYear'], errors='coerce') >= ANO_MINIMO]
     valid_tconsts = set(basics_df['tconst'])
 
@@ -82,16 +80,12 @@ def carregar_dim_pessoa(service: BaseCRUD, dfs: DFs):
         except:
             continue
 
-    print('Limpeza de dados concluida.')
-    diferenca_entre_datetimes(start_time, datetime.now())
 
     service.executemany("""
         INSERT INTO DIM_Pessoa (pk_pessoa, primaryName)
         VALUES (%s, %s)
     """, dados)
-    print(f"{len(dados)} registros inseridos em DIM_Pessoa.")
-    print('Inserção em DIM_Pessoa concluida.')
-    diferenca_entre_datetimes(start_time, datetime.now())
+    print(f"\n✅ {len(dados)} registros inseridos em DIM_Pessoa.\n")
 
 
 def carregar_dim_tempo(service: BaseCRUD, dfs: DFs):
@@ -105,6 +99,7 @@ def carregar_dim_tempo(service: BaseCRUD, dfs: DFs):
                 VALUES (%s, %s)
             """,
             (int(ano), int(ano)))
+    print(f"\n✅ {len(anos)} registros inseridos em DIM_Tempo.\n")
 
 
 def carregar_dim_papel(service: BaseCRUD, dfs: DFs):
