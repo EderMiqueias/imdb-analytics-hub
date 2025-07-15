@@ -103,26 +103,25 @@ def carregar_dim_tempo(service: BaseCRUD, dfs: DFs):
 
 
 def carregar_dim_papel(service: BaseCRUD, dfs: DFs):
-    # Lê arquivos
+    print("Carregando DIM_Papel...")
+
     basics_df = dfs.basics_df
     principals_df = dfs.principals_df
 
-    # Filtra títulos dos últimos 3 anos
     basics_df = basics_df[pd.to_numeric(basics_df['startYear'], errors='coerce') >= ANO_MINIMO]
-
-    # Junta títulos com papéis (título ↔ papel)
     valid_tconsts = set(basics_df['tconst'])
-    filtered_principals = principals_df[principals_df['tconst'].isin(valid_tconsts)]
 
-    # Remove duplicatas e valores nulos
-    filtered_principals = filtered_principals[['category', 'characters']].drop_duplicates().fillna("NULL")
+    principals_df = principals_df[principals_df['tconst'].isin(valid_tconsts)]
+    principals_df = principals_df[['category', 'characters']].dropna().drop_duplicates()
 
-    dados = [(row['category'], row['characters']) for _, row in filtered_principals.iterrows()]
+    dados = []
+    for _, row in principals_df.iterrows():
+        for character in string_para_lista(row['characters']):
+            dados.append((str(row['category']), character))
 
-    print("Iniciada a inserção na tabela DIM_Papel")
     service.executemany("""
-        INSERT INTO DIM_Papel (category, characters)
-        VALUES (%s, %s)
-    """, dados)
-    print(f"{len(dados)} registros inseridos em DIM_Papel (últimos 3 anos).")
+            INSERT INTO DIM_Papel (category, character_name)
+            VALUES (%s, %s)
+        """, dados)
+    print(f"\n✅ {len(dados)} registros inseridos em DIM_Papel.\n")
 
