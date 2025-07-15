@@ -26,11 +26,10 @@ def carregar_dfs_from_tsvs() -> DFs:
     ratings_df = pd.read_csv(BASE_PATH / "title.ratings.tsv", sep='\t', na_values='\\N', low_memory=False)
 
     return DFs(basics_df, principals_df, names_df, ratings_df)
-    # return DFs(basics_df, [], [], [])
 
 
 def carregar_dim_titulo(service: BaseCRUD, dfs: DFs):
-    print("Carregando DIM_Titulo...")
+    print("📥 Carregando DIM_Titulo...")
 
     df = dfs.basics_df
     df = df[pd.to_numeric(df['startYear'], errors='coerce') >= ANO_MINIMO]
@@ -96,7 +95,7 @@ def carregar_dim_tempo(service: BaseCRUD, dfs: DFs):
 
 
 def carregar_dim_papel(service: BaseCRUD, dfs: DFs):
-    print("Carregando DIM_Papel...")
+    print("📥 Carregando DIM_Papel...")
 
     principals_df = dfs.principals_df
     principals_df = principals_df[['category', 'characters']].dropna().drop_duplicates()
@@ -113,7 +112,7 @@ def carregar_dim_papel(service: BaseCRUD, dfs: DFs):
     print(f"\n✅ {len(dados)} registros inseridos em DIM_Papel.\n")
 
 def carregar_fato_avaliacao_titulo(service: BaseCRUD, dfs: DFs):
-    print("Carregando Fato_Avaliacao_Titulo...")
+    print("📥 Carregando Fato_Avaliacao_Titulo...")
 
     basics_df = dfs.basics_df
     ratings_df = dfs.ratings_df
