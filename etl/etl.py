@@ -6,7 +6,6 @@ from datetime import datetime
 from DTO import DFs
 from database.migrations.db_base import BaseCRUD
 from utils.data import string_para_lista
-from utils.dates import diferenca_entre_datetimes
 
 # Caminho base para os arquivos .tsv
 BASE_PATH = Path("tsv_input_files")
@@ -31,12 +30,14 @@ def carregar_dfs_from_tsvs() -> DFs:
 
 
 def carregar_dim_titulo(service: BaseCRUD, dfs: DFs):
-    start_time = datetime.now()
+    print("Carregando DIM_Titulo...")
+
     df = dfs.basics_df
     df = df[pd.to_numeric(df['startYear'], errors='coerce') >= ANO_MINIMO]
-    df = df[['tconst', 'titleType', 'primaryTitle', 'genres', 'runtimeMinutes']]
-    print('Leitura de TSVs concluida.')
-    diferenca_entre_datetimes(start_time, datetime.now())
+
+    df = df[['tconst', 'titleType', 'primaryTitle', 'genres', 'runtimeMinutes']].dropna(subset=['tconst', 'primaryTitle'])
+    df = df[df['tconst'].str.match(r'tt\d+')]
+    df = df.replace({pd.NA: None, float('nan'): None})
 
     dados = []
     for _, row in df.iterrows():
@@ -48,12 +49,11 @@ def carregar_dim_titulo(service: BaseCRUD, dfs: DFs):
             int(row['runtimeMinutes']) if pd.notna(row['runtimeMinutes']) else None
         ))
 
-    print("Iniciada a inserção na tabela DIM_Titulo")
     service.executemany("""
         INSERT INTO DIM_Titulo (pk_titulo, titleType, primaryTitle, genres, runtimeMinutes)
         VALUES (%s, %s, %s, %s, %s)
     """, dados)
-    print(f"{len(dados)} registros inseridos em DIM_Titulo.")
+    print(f"\n{len(dados)} registros inseridos em DIM_Titulo.\n")
 
 
 def carregar_dim_pessoa(service: BaseCRUD, dfs: DFs):
