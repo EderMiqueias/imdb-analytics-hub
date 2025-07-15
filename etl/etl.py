@@ -41,13 +41,12 @@ def carregar_dim_titulo(service: BaseCRUD, dfs: DFs):
 
     dados = []
     for _, row in df.iterrows():
-        dados.append((
-            int(row['tconst'][2:]),
-            row['titleType'],
-            row['primaryTitle'],
-            row['genres'],
-            int(row['runtimeMinutes']) if pd.notna(row['runtimeMinutes']) else None
-        ))
+        try:
+            pk = int(row['tconst'][2:])
+            runtime = int(row['runtimeMinutes']) if pd.notna(row['runtimeMinutes']) else None
+            dados.append((pk, row['titleType'], row['primaryTitle'], row['genres'], runtime))
+        except:
+            continue
 
     service.executemany("""
         INSERT INTO DIM_Titulo (pk_titulo, titleType, primaryTitle, genres, runtimeMinutes)
