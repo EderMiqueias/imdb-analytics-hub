@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS DIM_Titulo (
     pk_titulo INT PRIMARY KEY,
     titleType VARCHAR(255),
-    primaryTitle VARCHAR(255),
+    primaryTitle VARCHAR(512),
     genres VARCHAR(255),
     runtimeMinutes BIGINT(23)
 );
