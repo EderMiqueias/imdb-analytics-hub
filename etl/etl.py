@@ -150,7 +150,7 @@ def carregar_fato_pessoa(service: BaseCRUD, dfs: DFs):
 
     basics_df = dfs.basics_df
     ratings_df = dfs.ratings_df
-    principals_df = dfs.ratings_df
+    principals_df = dfs.principals_df
 
     basics_df = basics_df[pd.to_numeric(basics_df['startYear'], errors='coerce') >= ANO_MINIMO]
     basics_df = basics_df[basics_df['tconst'].str.match(r'tt\d+')]
@@ -182,7 +182,7 @@ def carregar_fato_pessoa(service: BaseCRUD, dfs: DFs):
 
     service.executemany("""
         INSERT INTO Fato_Pessoa (
-            pk_pessoa,
+            DIM_Pessoa_pk_pessoa,
             numTitulos,
             numVotes,
             averageRating
