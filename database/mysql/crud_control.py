@@ -2,6 +2,7 @@ import mysql.connector
 from mysql.connector import Error
 
 from database.migrations.db_base import BaseCRUD
+from utils.data import dividir_array
 
 
 class MySQLCRUD(BaseCRUD):
@@ -60,14 +61,15 @@ class MySQLCRUD(BaseCRUD):
         return rows_affected
 
     def executemany(self, query, values):
-        try:
-            cursor = self.connection.cursor(dictionary=True)
-            cursor.executemany(query, values)
-            cursor.close()
-            self.connection.commit()
-        except Error as e:
-            self.connection.rollback()
-            print(f"Erro ao executar query: {e}")
+        cursor = self.connection.cursor(dictionary=True)
+        for parte in dividir_array(values, 100000):
+            try:
+                cursor.executemany(query, parte)
+            except Error as e:
+                self.connection.rollback()
+                print(f"Erro ao executar query: {e}")
+        cursor.close()
+        self.connection.commit()
 
     def select(self, table: str, columns: str='*', where: str=None, params=None):
         """Realiza uma consulta na tabela especificada"""
