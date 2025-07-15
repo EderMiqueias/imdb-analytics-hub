@@ -14,12 +14,20 @@ ANO_MINIMO = datetime.now().year - 3  # Últimos 3 anos
 
 
 def carregar_dfs_from_tsvs() -> DFs:
+    # len 11.762.396
     basics_df = pd.read_csv(BASE_PATH / "title.basics.tsv", sep='\t', na_values='\\N', low_memory=False)
+
+    # len 93.469.663
     principals_df = pd.read_csv(BASE_PATH / "title.principals.tsv", sep='\t', na_values='\\N', low_memory=False)
+
+    # len 14.535.473
     names_df = pd.read_csv(BASE_PATH / "name.basics.tsv", sep='\t', na_values='\\N', low_memory=False)
+
+    # len 1.581.387
     ratings_df = pd.read_csv(BASE_PATH / "title.ratings.tsv", sep='\t', na_values='\\N', low_memory=False)
 
     return DFs(basics_df, principals_df, names_df, ratings_df)
+    # return DFs(basics_df, [], [], [])
 
 
 def carregar_dim_titulo(service: BaseCRUD, dfs: DFs):
@@ -57,13 +65,11 @@ def carregar_dim_pessoa(service: BaseCRUD, dfs: DFs):
     basics_df = basics_df[pd.to_numeric(basics_df['startYear'], errors='coerce') >= ANO_MINIMO]
     valid_tconsts = set(basics_df['tconst'])
 
-    filtered_principals = principals_df[principals_df['tconst'].isin(valid_tconsts)]
-    valid_nconsts = set(filtered_principals['nconst'])
+    # filtered_principals = principals_df[principals_df['tconst'].isin(valid_tconsts)]
+    # valid_nconsts = set(filtered_principals['nconst'])
 
-    filtered_names = names_df[names_df['nconst'].isin(valid_nconsts)][['nconst', 'primaryName']].dropna()
-
-    print('Filtragem de dados concluida.')
-    diferenca_entre_datetimes(start_time, datetime.now())
+    # filtered_names = names_df[names_df['nconst'].isin(valid_nconsts)][['nconst', 'primaryName']].dropna()
+    filtered_names = names_df[['nconst', 'primaryName']].dropna()
 
     # Remove nconsts malformados e nomes vazios
     filtered_names = filtered_names[
@@ -79,7 +85,6 @@ def carregar_dim_pessoa(service: BaseCRUD, dfs: DFs):
             dados.append((pk, row['primaryName']))
         except:
             continue
-
 
     service.executemany("""
         INSERT INTO DIM_Pessoa (pk_pessoa, primaryName)
@@ -105,13 +110,13 @@ def carregar_dim_tempo(service: BaseCRUD, dfs: DFs):
 def carregar_dim_papel(service: BaseCRUD, dfs: DFs):
     print("Carregando DIM_Papel...")
 
-    basics_df = dfs.basics_df
+    # basics_df = dfs.basics_df
     principals_df = dfs.principals_df
 
-    basics_df = basics_df[pd.to_numeric(basics_df['startYear'], errors='coerce') >= ANO_MINIMO]
-    valid_tconsts = set(basics_df['tconst'])
+    # basics_df = basics_df[pd.to_numeric(basics_df['startYear'], errors='coerce') >= ANO_MINIMO]
+    # valid_tconsts = set(basics_df['tconst'])
 
-    principals_df = principals_df[principals_df['tconst'].isin(valid_tconsts)]
+    # principals_df = principals_df[principals_df['tconst'].isin(valid_tconsts)]
     principals_df = principals_df[['category', 'characters']].dropna().drop_duplicates()
 
     dados = []
