@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS DIM_Pessoa (
 
 CREATE TABLE IF NOT EXISTS DIM_Tempo (
     pk_tempo INT PRIMARY KEY,
-    starYear YEAR(4)
+    startYear YEAR(4)
 );
 
 CREATE TABLE IF NOT EXISTS DIM_Papel (

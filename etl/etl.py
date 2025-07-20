@@ -87,7 +87,7 @@ def carregar_dim_tempo(service: BaseCRUD, dfs: DFs):
     for ano in anos:
         service.execute_query(
             """
-                INSERT IGNORE INTO DIM_Tempo (pk_tempo, starYear)
+                INSERT IGNORE INTO DIM_Tempo (pk_tempo, startYear)
                 VALUES (%s, %s)
             """,
             (int(ano), int(ano)))
